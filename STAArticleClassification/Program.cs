@@ -66,10 +66,10 @@ namespace STAArticleClassification
             //3. Looking for related articles
             foreach (Article article in testingSet.articles.Values.OrderBy(key => key.id[0]))
             {
-                if (article.specialCoverage == null) //check if article doesn't have specialCoverage
+                if (article.specialCoverage == null) //if article doesn't have specialCoverage
                 {
                     int specialCoverage = sureClassifiers.RelatedArticles(article);
-                    if (specialCoverage > 0) //check if specialCoverage was given by the method
+                    if (specialCoverage > 0) //if specialCoverage was given by the method
                     {
                         article.specialCoverage = new int[1];
                         article.specialCoverage[0] = specialCoverage;
@@ -82,7 +82,7 @@ namespace STAArticleClassification
 
             foreach (Article article in testingSet.articles.Values)
             {
-                if (article.specialCoverage == null) //check if specialCoverage was given by the method
+                if (article.specialCoverage == null) //if article doesn't have specialCoverage
                 {
                     article.specialCoverage = new int[1];
                     article.specialCoverage[0] = svmClassifier.Classify(article);
