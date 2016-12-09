@@ -1,18 +1,42 @@
-﻿//Krzysztof Desput
+﻿//SVMClassifier.cs
+//Author: Krzysztof Desput
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using libsvm;
 
-namespace AI4
+namespace STAArticleClassification
 {
+    /// <summary>
+    /// Class containing a SVM classifier for articles
+    /// </summary>
     public class SVMClassifier
     {
-        private TrainingSet trainingSet; //training set
-        private HashSet<string> vocabulary; //list of all features that exist in articles
-        private List<string> x; //list of features of each article
-        private List<double> y; //list of special coverages of each article
-        private C_SVC model; //model used for predictions
+        /// <summary>
+        /// Training set loaded from a file
+        /// </summary>
+        private TrainingSet trainingSet;
+        /// <summary>
+        /// List of all the features(words) that occur in articles
+        /// </summary>
+        private HashSet<string> vocabulary;
+        /// <summary>
+        /// List of features(bag-of-words) obtained from articles (1 string = 1 article)
+        /// </summary>
+        private List<string> x;
+        /// <summary>
+        /// Array of special coverages of articles from x
+        /// </summary>
+        private List<double> y; 
+        /// <summary>
+        /// Model that is used for predictions
+        /// </summary>
+        private C_SVC model;
+        /// <summary>
+        /// Constructor that creates object with given training set and testing set
+        /// </summary>
+        /// <param name="trainingSet">Training set loaded from a file</param>
+        /// <param name="testingSet">Testing set loaded from a file</param>
         public SVMClassifier(TrainingSet trainingSet, TestingSet testingSet)
         {
             this.trainingSet = trainingSet;
@@ -23,8 +47,8 @@ namespace AI4
             foreach (Article article in trainingSet.articles.Values) //load data from the training set
             {
                 string features = ArticleFeatures(article);
+                //add features and special coverages to lists 
                 AddFeaturesToVocabulary(features);
-                //add features and special coverages to lists
                 x.Add(features);
                 y.Add(article.specialCoverage[0]);
             }
@@ -34,8 +58,8 @@ namespace AI4
                 if(article.specialCoverage != null)
                 {
                     string features = ArticleFeatures(article);
-                    AddFeaturesToVocabulary(features);
                     //add features and special coverages to lists
+                    AddFeaturesToVocabulary(features);
                     x.Add(features);
                     y.Add(article.specialCoverage[0]);
                 }
@@ -45,11 +69,15 @@ namespace AI4
             ProblemBuilder problemBuilder = new ProblemBuilder();
             var problem = problemBuilder.CreateProblem(x, y.ToArray(), vocabulary.ToList());
 
-            //create new model
+            //create new model using linear kernel
             const int C = 1; //C parameter for C_SVC
             model = new C_SVC(problem, KernelHelper.LinearKernel(), C);
         }
-
+        /// <summary>
+        /// Predicts special coverage of the article using built model
+        /// </summary>
+        /// <param name="article">Article classified by the method</param>
+        /// <returns>Special coverage predicted by the model</returns>
         public int Classify(Article article)
         {
             var newX = ProblemBuilder.CreateNode(ArticleFeatures(article), vocabulary.ToList()); //create node
@@ -57,7 +85,11 @@ namespace AI4
             return (int)predictedY;
         }
 
-
+        /// <summary>
+        /// Gets the month when the article was created and the half of this month (e.g. when article was written on 16 March it is "March2")
+        /// </summary>
+        /// <param name="versioncreated">Date of creation of the article (Unix timestamp in miliseconds)</param>
+        /// <returns>Date feature in format [monthName][halfOfTheMonth] e.g. "October1" </returns>
         private string DateFeature(long versioncreated) //get the date feature from article's date of creation (e.g. "September1" for the first half of september)
         {
             DateTime datetime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
@@ -70,7 +102,11 @@ namespace AI4
             else ret += "2";
             return ret;
         }
-
+        /// <summary>
+        /// Extracts the features from the article
+        /// </summary>
+        /// <param name="article">Article to extract features</param>
+        /// <returns>String of features(bag-of-words) obtained from article, separated by ','</returns>
         private string ArticleFeatures(Article article)
         {
             string features = ""; //article's features (bag-of-words)
@@ -93,7 +129,10 @@ namespace AI4
 
             return features;
         }
-
+        /// <summary>
+        /// Adds features from the string to vocabulary.
+        /// </summary>
+        /// <param name="features">String of features(bag-of-words) obtained from article, separated by ','</param>
         public void AddFeaturesToVocabulary(string features) //add features to vocabulary
         {
             string[] featuresArray = features.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);

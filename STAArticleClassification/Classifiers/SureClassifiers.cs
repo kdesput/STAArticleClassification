@@ -1,17 +1,36 @@
-﻿//Krzysztof Desput
-namespace AI4
+﻿//SureClassifiers.cs
+//Author: Krzysztof Desput
+namespace STAArticleClassification
 {
-    class SureClassifiers //classifiers that are 100% sure
+    /// <summary>
+    /// Class containing classifier methods that are 100% sure
+    /// </summary>
+    class SureClassifiers
     {
+        /// <summary>
+        /// Training set loaded from a file
+        /// </summary>
         private TrainingSet trainingSet;
+        /// <summary>
+        /// Testing set loaded from a file
+        /// </summary>
         private TestingSet testingSet;
+        /// <summary>
+        /// Constructor that creates object with given training set and testing set
+        /// </summary>
+        /// <param name="trainingSet">Training set loaded from a file</param>
+        /// <param name="testingSet">Testing set loaded from a file</param>
         public SureClassifiers(TrainingSet trainingSet, TestingSet testingSet)
         {
             this.trainingSet = trainingSet;
             this.testingSet = testingSet;
         }
-
-        public int PreviousArticle(Article article) //get special coverage from the previous article
+        /// <summary>
+        /// Gets special coverage from the previous article
+        /// </summary>
+        /// <param name="article">Article classified by the method</param>
+        /// <returns>Special coverage obtained by this method</returns>
+        public int PreviousArticle(Article article) 
         {
             int specialCoverage = 0; //if specialCoverage == 0 - no previous articles found
             if (article.previous != null) //check if article has got previous article in chain
@@ -28,7 +47,11 @@ namespace AI4
             }
             return specialCoverage;
         }
-
+        /// <summary>
+        /// Gets special coverage from the next article
+        /// </summary>
+        /// <param name="article">Article classified by the method</param>
+        /// <returns>Special coverage obtained by this method</returns>
         public int NextArticle(Article article) //get special coverage from the next article
         {
             int specialCoverage = 0; //if specialCoverage == 0 - no next articles found
@@ -46,11 +69,15 @@ namespace AI4
             }
             return specialCoverage;
         }
-
+        /// <summary>
+        /// Gets special coverage from related articles
+        /// </summary>
+        /// <param name="article">Article classified by the method</param>
+        /// <returns>Special coverage obtained by this method</returns>
         public int RelatedArticles(Article article) //get special coverage from related articles
         {
             int specialCoverage = 0; //if specialCoverage == 0 - no related articles found, if -1 then related articles have different special coverages
-            if (article.related != null)
+            if (article.related != null) //check if article has got related articles
             {
                 foreach (int related in article.related)
                 {
